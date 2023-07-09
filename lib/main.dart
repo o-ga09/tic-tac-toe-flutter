@@ -42,11 +42,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 300,
                 height: 50,
                 color: turn == 0 ? Colors.red : Colors.blue,
+                margin: const EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 50.0),
                 child: const Text(
                   'ターン',
                   style: TextStyle(fontSize: 20),
                 ),
-                margin: EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 50.0),
               ),
               SizedBox(
                 width: 300,
@@ -56,6 +56,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: List.generate(9, (index) {
                     return GestureDetector(
                       onTap: () {
+                        // 入力座標をドメインの型に変換
+                        final koma = posConvert(index, turn);
+
+                        // タップした場所が空白か
+                        if(board[koma.x][koma.y] != -1) {
+                          showDialog(
+                            context: context, 
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('置けません'),
+                                content: const Text('その場所にはすでに駒が置かれています'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  )
+                                ]
+                              );
+                            },
+                          );
+                          return;
+                        }
+          
                         // 色をプレイヤーの色に変更する
                         // 先攻：赤、後攻：青
                         if (turn == 0) {
@@ -64,12 +89,43 @@ class _MyHomePageState extends State<MyHomePage> {
                           board_color[index] = Colors.blue;
                         }
 
-                        // 入力座標をドメインの型に変換
-                        final koma = posConvert(index, turn);
-
                         // 盤面を更新
                         board[koma.x][koma.y] = turn;
                         turn = 1 - turn;
+                        
+                        // 引き分け判定
+                        if(!isEmpty(board)) {
+                          showDialog(
+                            context: context, 
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('ゲーム終了'),
+                                content: const Text('引き分けです！'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  )
+                                ]
+                              );
+                            },
+                          );
+                          board_color = [ Colors.white, Colors.white, Colors.white,
+                                          Colors.white, Colors.white, Colors.white,
+                                          Colors.white, Colors.white, Colors.white,
+                                        ];
+                          board = [
+                                    [-1,-1,-1],
+                                    [-1,-1,-1],
+                                    [-1,-1,-1],
+                                  ];
+                          turn = 0;
+
+                          // 状態を更新
+                          setState(() {});
+                        }
 
                         // 状態を更新
                         setState(() {});
@@ -93,7 +149,22 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
+                          board_color = [ Colors.white, Colors.white, Colors.white,
+                                          Colors.white, Colors.white, Colors.white,
+                                          Colors.white, Colors.white, Colors.white,
+                                        ];
+                          board = [
+                                    [-1,-1,-1],
+                                    [-1,-1,-1],
+                                    [-1,-1,-1],
+                                  ];
+                          turn = 0;
+
+                          // 状態を更新
+                          setState(() {});
                         }
+
+
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -183,6 +254,18 @@ bool checkCross(List<List<int>> board,Koma pos) {
     } else if(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] == board[2][0] && board[0][2] == pos.order) {
       return true;
     }
+
+  return false;
+}
+
+bool isEmpty(List<List<int>> board) {
+  for(var i = 0; i < 3; i++) {
+    for(var j = 0; j < 3; j++) {
+      if(board[i][j] == -1){
+        return true;
+      }
+    }
+  }
 
   return false;
 }

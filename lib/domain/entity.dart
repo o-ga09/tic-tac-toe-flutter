@@ -1,12 +1,12 @@
 class Board {
-  List<List<String>> board;
+  List<List<int>> board;
 
   Board() : board = [];
 
-  List<List<String>> init() {
+  List<List<int>> init() {
     for(var i = 0; i < 3; i++) {
       for(var j = 0; j < 3; j++) {
-        board[i][j] = "-";
+        board[i][j] = -1;
       }
     }
 
