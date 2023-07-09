@@ -1,68 +1,188 @@
 import 'package:flutter/material.dart';
+import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
 
 void main() {
-  runApp(const MyApp());
+  // runApp(MyApp());
+  runApp(MaterialApp(
+    title: 'test',
+    home: MyHomePage(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int turn = 0;
+  List<Color> board_color = [ Colors.white, Colors.white, Colors.white,
+                              Colors.white, Colors.white, Colors.white,
+                              Colors.white, Colors.white, Colors.white,
+                            ];
+  List<List<int>> board = [
+                            [-1,-1,-1],
+                            [-1,-1,-1],
+                            [-1,-1,-1],
+                          ];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Flutter Tic Tac Toe'),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              Container(
+                width: 300,
+                height: 50,
+                color: turn == 0 ? Colors.red : Colors.blue,
+                child: const Text(
+                  'ターン',
+                  style: TextStyle(fontSize: 20),
+                ),
+                margin: EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 50.0),
+              ),
+              SizedBox(
+                width: 300,
+                height: 300,
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  children: List.generate(9, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        // 色をプレイヤーの色に変更する
+                        // 先攻：赤、後攻：青
+                        if (turn == 0) {
+                          board_color[index] = Colors.red;
+                        } else {
+                          board_color[index] = Colors.blue;
+                        }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+                        // 入力座標をドメインの型に変換
+                        final koma = posConvert(index, turn);
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+                        // 盤面を更新
+                        board[koma.x][koma.y] = turn;
+                        turn = 1 - turn;
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+                        // 状態を更新
+                        setState(() {});
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+                        // 終了判定をする
+                        if(isWin(board, koma)){
+                          showDialog(
+                            context: context, 
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('ゲーム終了'),
+                                content: Text('勝者は${koma.order == 0 ? '赤' : '青'}です！'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('OK'),
+                                  )
+                                ]
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          color: board_color[index]
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ), 
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // 盤面を初期化する
+            board_color = [ Colors.white, Colors.white, Colors.white,
+                            Colors.white, Colors.white, Colors.white,
+                            Colors.white, Colors.white, Colors.white,
+                          ];
+            board = [
+                      [-1,-1,-1],
+                      [-1,-1,-1],
+                      [-1,-1,-1],
+                    ];
+            turn = 0;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+            // 状態を更新
+            setState(() {});
+          },
+          child: const Icon(Icons.refresh),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
     );
   }
+}
+
+Koma posConvert(int index,int turn) {
+  final int x;
+  final int y;
+  if(index >= 0 && index <= 2){
+    x = index;
+    y = 0;
+  } else if(index >= 3 && index <= 5) {
+    x = index - 3;
+    y = 1;
+  } else if(index >= 6 && index <= 8) {
+    x = index - 6;
+    y = 2;
+  } else {
+    x = -1;
+    y = -1;
+  }
+  final koma = Koma(turn, x, y);
+  return koma;
+}
+
+bool isWin(List<List<int>> board,Koma pos) {
+  if(checkVertical(board,pos) || checkHorizon(board,pos) || checkCross(board,pos)) {
+    return true;
+  }
+  return false;
+}
+
+bool checkVertical(List<List<int>> board,Koma pos){
+  for(var i = 0; i < 3; i++) {
+    if(board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] == board[i][2] && board[i][0] == pos.order) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool checkHorizon(List<List<int>> board,Koma pos) {
+    for(var i = 0; i < 3; i++) {
+    if(board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] == board[2][i] && board[0][i] == pos.order) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool checkCross(List<List<int>> board,Koma pos) {
+    if(board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] == board[2][2] && board[0][0] == pos.order) {
+      return true;
+    } else if(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] == board[2][0] && board[0][2] == pos.order) {
+      return true;
+    }
+
+  return false;
 }
