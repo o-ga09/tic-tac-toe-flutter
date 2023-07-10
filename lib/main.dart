@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
+import 'package:tic_tac_toe_fluttrer/driver/driver.dart';
+import 'package:tic_tac_toe_fluttrer/gateway/gateway.dart';
+import 'package:tic_tac_toe_fluttrer/presenter/presenter.dart';
+import 'package:tic_tac_toe_fluttrer/state/state.dart';
+import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
+import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
+import 'package:tic_tac_toe_fluttrer/usecase/usecase.dart';
 
 void main() {
   // runApp(MyApp());
@@ -17,16 +24,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int turn = 0;
-  List<Color> board_color = [ Colors.white, Colors.white, Colors.white,
-                              Colors.white, Colors.white, Colors.white,
-                              Colors.white, Colors.white, Colors.white,
-                            ];
-  List<List<int>> board = [
-                            [-1,-1,-1],
-                            [-1,-1,-1],
-                            [-1,-1,-1],
-                          ];
+  static var gameState = GameState();
+  static var driver = GameDriver();
+  static var gateway = GameGateway(driver);
+  static var presenter = GamePresenter(gameState);
+  static var usecase = GameUsecase(gateway as OutPutPort, presenter as InPutPort);
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           return;
                         }
           
-                        // 色をプレイヤーの色に変更する
-                        // 先攻：赤、後攻：青
-                        if (turn == 0) {
-                          board_color[index] = Colors.red;
-                        } else {
-                          board_color[index] = Colors.blue;
-                        }
+
 
                         // 盤面を更新
                         board[koma.x][koma.y] = turn;
@@ -201,71 +197,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-Koma posConvert(int index,int turn) {
-  final int x;
-  final int y;
-  if(index >= 0 && index <= 2){
-    x = index;
-    y = 0;
-  } else if(index >= 3 && index <= 5) {
-    x = index - 3;
-    y = 1;
-  } else if(index >= 6 && index <= 8) {
-    x = index - 6;
-    y = 2;
-  } else {
-    x = -1;
-    y = -1;
-  }
-  final koma = Koma(turn, x, y);
-  return koma;
-}
-
-bool isWin(List<List<int>> board,Koma pos) {
-  if(checkVertical(board,pos) || checkHorizon(board,pos) || checkCross(board,pos)) {
-    return true;
-  }
-  return false;
-}
-
-bool checkVertical(List<List<int>> board,Koma pos){
-  for(var i = 0; i < 3; i++) {
-    if(board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] == board[i][2] && board[i][0] == pos.order) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool checkHorizon(List<List<int>> board,Koma pos) {
-    for(var i = 0; i < 3; i++) {
-    if(board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] == board[2][i] && board[0][i] == pos.order) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool checkCross(List<List<int>> board,Koma pos) {
-    if(board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] == board[2][2] && board[0][0] == pos.order) {
-      return true;
-    } else if(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] == board[2][0] && board[0][2] == pos.order) {
-      return true;
-    }
-
-  return false;
-}
-
-bool isEmpty(List<List<int>> board) {
-  for(var i = 0; i < 3; i++) {
-    for(var j = 0; j < 3; j++) {
-      if(board[i][j] == -1){
-        return true;
-      }
-    }
-  }
-
-  return false;
 }

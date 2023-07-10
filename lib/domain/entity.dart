@@ -1,17 +1,10 @@
+import 'package:flutter/material.dart';
+
 class Board {
-  List<List<int>> board;
+  final List<List<int>> board;
+  final List<Color> boardcolor;
 
-  Board() : board = [];
-
-  List<List<int>> init() {
-    for(var i = 0; i < 3; i++) {
-      for(var j = 0; j < 3; j++) {
-        board[i][j] = -1;
-      }
-    }
-
-    return board;
-  }
+  Board(this.board, this.boardcolor);
 }
 
 class Koma {

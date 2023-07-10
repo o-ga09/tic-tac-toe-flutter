@@ -1,4 +1,89 @@
+import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
+import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
+import '../domain/entity.dart';
 
+class GameUsecase {
+  OutPutPort gameOutPutPort;
+  InPutPort gameInPutPort;
+  GameUsecase(this.gameOutPutPort,this.gameInPutPort);
+  
+  InputData input(int turn, int x, int y) {
+    final koma = Koma(turn, x, y);
+    final board = gameInPutPort.input(koma);
+
+    board.board[x][y] = turn;
+    gameOutPutPort.display(board);
+
+    return InputData(turn, x, y);
+  }
+
+  bool isWin(List<List<int>> board,InputData pos) {
+    if(checkVertical(board,pos) || checkHorizon(board,pos) || checkCross(board,pos)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool checkVertical(List<List<int>> board,InputData pos){
+    for(var i = 0; i < 3; i++) {
+      if(board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] == board[i][2] && board[i][0] == pos.order) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool checkHorizon(List<List<int>> board,InputData pos) {
+      for(var i = 0; i < 3; i++) {
+      if(board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] == board[2][i] && board[0][i] == pos.order) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool checkCross(List<List<int>> board,InputData pos) {
+      if(board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] == board[2][2] && board[0][0] == pos.order) {
+        return true;
+      } else if(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] == board[2][0] && board[0][2] == pos.order) {
+        return true;
+      }
+
+    return false;
+  }
+
+  bool isEmpty(List<List<int>> board) {
+    for(var i = 0; i < 3; i++) {
+      for(var j = 0; j < 3; j++) {
+        if(board[i][j] == -1){
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  Koma posConvert(int index,int turn) {
+    final int x;
+    final int y;
+    if(index >= 0 && index <= 2){
+      x = index;
+      y = 0;
+    } else if(index >= 3 && index <= 5) {
+      x = index - 3;
+      y = 1;
+    } else if(index >= 6 && index <= 8) {
+      x = index - 6;
+      y = 2;
+    } else {
+      x = -1;
+      y = -1;
+    }
+    final koma = Koma(turn, x, y);
+    return koma;
+  }
+}
 
 class InputData {
   final int order;
