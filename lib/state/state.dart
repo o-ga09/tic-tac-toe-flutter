@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
 
 class GameState {
-  List<List<int>> board = List.generate(3, (_) => List.filled(3, 0));
+  List<List<int>> board = List.generate(3, (_) => List.filled(3, -1));
   List<Color> boardcolor = List.filled(9, Colors.white);
 
   setBoard(Board b) {

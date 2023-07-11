@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         final koma = usecase.input(turn, index);
 
                         // タップした場所が空白か
-                        if(!usecase.isEmpty(gameState.board)) {
+                        if(koma.order == -2) {
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
-                          // TODO
+                          usecase.reset();
                           turn = 0;
 
                           // 状態を更新
@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
-                          // TODO
+                          usecase.reset();
                           turn = 0;
 
                           // 状態を更新
@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             // 盤面を初期化する
-            // TODO
+            usecase.reset();
             turn = 0;
 
             // 状態を更新

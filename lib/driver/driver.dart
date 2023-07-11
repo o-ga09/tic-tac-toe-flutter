@@ -11,6 +11,9 @@ class GameDriver {
 
   DriverBoard input(DriverKoma koma) {
     final index = posConvert(koma.x, koma.y);
+    if(board[koma.x][koma.y] != -1) {
+      return DriverBoard(board, boardcolor);
+    }
     board[koma.x][koma.y] = koma.order;
     // 色をプレイヤーの色に変更する
     // 先攻：赤、後攻：青
@@ -20,6 +23,17 @@ class GameDriver {
       boardcolor[index] = Colors.blue;
     }
     return DriverBoard(board, boardcolor);
+  }
+
+  DriverBoard reset() {
+    var b = List.generate(3, (_) => List.filled(3, -1));
+    var bc = List.filled(9, Colors.white);
+    var initBoard = DriverBoard(board, boardcolor);
+
+    board = b;
+    boardcolor = bc;
+
+    return initBoard;
   }
 
   int posConvert(int x,int y) {

@@ -13,4 +13,11 @@ class GameGateway implements InPutPort {
     final res = gameDriver.input(driverKoma);
     return Board(res.board,res.boardcolor);
   }
+
+  @override
+  Board reset() {
+    var res = gameDriver.reset();
+
+    return Board(res.board, res.boardcolor);
+  }
 }

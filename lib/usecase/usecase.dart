@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
 import '../domain/entity.dart';
@@ -13,6 +12,9 @@ class GameUsecase {
     final koma = Koma(turn, inputdata.x, inputdata.y);
     final board = gameInPutPort.input(koma);
 
+    if(board.board[koma.x][koma.y] != -1) {
+      return InputData(-2, -1, -1);
+    }
     board.board[koma.x][koma.y] = turn;
     gameOutPutPort.display(board);
 
@@ -24,6 +26,11 @@ class GameUsecase {
       return true;
     }
     return false;
+  }
+
+  void reset() {
+    var initBoard = gameInPutPort.reset();
+    gameOutPutPort.display(initBoard);
   }
 
   bool checkVertical(List<List<int>> board,InputData pos){
@@ -55,7 +62,6 @@ class GameUsecase {
   }
 
   bool isEmpty(List<List<int>> board) {
-    debugPrint(board.toString());
     for(var i = 0; i < 3; i++) {
       for(var j = 0; j < 3; j++) {
         if(board[i][j] == -1){
