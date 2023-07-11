@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
 
 class GameState {
-  GameUnit board = [] as GameUnit;
+  List<List<int>> board = List.generate(3, (_) => List.filled(3, 0));
+  List<Color> boardcolor = List.filled(9, Colors.white);
 
   setBoard(Board b) {
-    board = convertGameUnit(b.board,b.boardcolor);
+    board = b.board;
+    boardcolor = b.boardcolor;
   }
 
   GameUnit convertGameUnit(List<List<int>> board , List<Color> boardcolor) {
@@ -17,8 +19,7 @@ class GameState {
 }
 
 class GameUnit {
-  GameUnit(
-    final List<List<int>> board, 
-    final List<Color> boardcolor
-  );
+  final List<List<int>> board; 
+  final List<Color> boardcolor;
+  GameUnit(this.board, this.boardcolor);
 }

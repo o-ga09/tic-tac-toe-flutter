@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
 import '../domain/entity.dart';
@@ -7,14 +8,15 @@ class GameUsecase {
   InPutPort gameInPutPort;
   GameUsecase(this.gameOutPutPort,this.gameInPutPort);
   
-  InputData input(int turn, int x, int y) {
-    final koma = Koma(turn, x, y);
+  InputData input(int turn, int index) {
+    final inputdata = posConvert(index, turn);
+    final koma = Koma(turn, inputdata.x, inputdata.y);
     final board = gameInPutPort.input(koma);
 
-    board.board[x][y] = turn;
+    board.board[koma.x][koma.y] = turn;
     gameOutPutPort.display(board);
 
-    return InputData(turn, x, y);
+    return InputData(turn, koma.x, koma.y);
   }
 
   bool isWin(List<List<int>> board,InputData pos) {
@@ -53,6 +55,7 @@ class GameUsecase {
   }
 
   bool isEmpty(List<List<int>> board) {
+    debugPrint(board.toString());
     for(var i = 0; i < 3; i++) {
       for(var j = 0; j < 3; j++) {
         if(board[i][j] == -1){
@@ -68,14 +71,14 @@ class GameUsecase {
     final int x;
     final int y;
     if(index >= 0 && index <= 2){
-      x = index;
-      y = 0;
+      x = 0;
+      y = index;
     } else if(index >= 3 && index <= 5) {
-      x = index - 3;
-      y = 1;
+      x = 1;
+      y = index - 3;
     } else if(index >= 6 && index <= 8) {
-      x = index - 6;
-      y = 2;
+      x = 2;
+      y = index - 6;
     } else {
       x = -1;
       y = -1;

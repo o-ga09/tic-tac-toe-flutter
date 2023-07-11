@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
 
 class GameDriver {
-  final DriverBoard board = {} as DriverBoard;
-
+  late List<List<int>> board;
+  late List<Color> boardcolor;
 
   GameDriver() {
-    for(var i = 0; i < 3; i++) {
-      for(var j = 0; j < 3; j++) {
-        board.board[i][j] = -1;
-      }
-    }
-
-    for(var i = 0; i < 9; i++) {
-      board.boardcolor[i] = Colors.white;
-    }
+    board = List.generate(3, (_) => List.filled(3, -1));
+    boardcolor = List.filled(9, Colors.white);
   }
 
   DriverBoard input(DriverKoma koma) {
     final index = posConvert(koma.x, koma.y);
-    board.board[koma.x][koma.y] = koma.order;
+    board[koma.x][koma.y] = koma.order;
     // 色をプレイヤーの色に変更する
     // 先攻：赤、後攻：青
     if (koma.order == 0) {
-      board.boardcolor[index] = Colors.red;
+      boardcolor[index] = Colors.red;
     } else {
-      board.boardcolor[index] = Colors.blue;
+      boardcolor[index] = Colors.blue;
     }
-    return board;
+    return DriverBoard(board, boardcolor);
   }
 
   int posConvert(int x,int y) {

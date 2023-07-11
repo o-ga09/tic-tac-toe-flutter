@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
 import 'package:tic_tac_toe_fluttrer/driver/driver.dart';
 import 'package:tic_tac_toe_fluttrer/gateway/gateway.dart';
 import 'package:tic_tac_toe_fluttrer/presenter/presenter.dart';
 import 'package:tic_tac_toe_fluttrer/state/state.dart';
-import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
-import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/usecase.dart';
 
 void main() {
@@ -28,7 +25,9 @@ class _MyHomePageState extends State<MyHomePage> {
   static var driver = GameDriver();
   static var gateway = GameGateway(driver);
   static var presenter = GamePresenter(gameState);
-  static var usecase = GameUsecase(gateway as OutPutPort, presenter as InPutPort);
+  static var usecase = GameUsecase(presenter,gateway);
+
+  int turn = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +58,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     return GestureDetector(
                       onTap: () {
                         // 入力座標をドメインの型に変換
-                        final koma = posConvert(index, turn);
+                        final koma = usecase.input(turn, index);
 
                         // タップした場所が空白か
-                        if(board[koma.x][koma.y] != -1) {
+                        if(!usecase.isEmpty(gameState.board)) {
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -86,11 +85,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
                         // 盤面を更新
-                        board[koma.x][koma.y] = turn;
                         turn = 1 - turn;
                         
                         // 引き分け判定
-                        if(!isEmpty(board)) {
+                        if(!usecase.isEmpty(gameState.board)) {
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -108,15 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
-                          board_color = [ Colors.white, Colors.white, Colors.white,
-                                          Colors.white, Colors.white, Colors.white,
-                                          Colors.white, Colors.white, Colors.white,
-                                        ];
-                          board = [
-                                    [-1,-1,-1],
-                                    [-1,-1,-1],
-                                    [-1,-1,-1],
-                                  ];
+                          // TODO
                           turn = 0;
 
                           // 状態を更新
@@ -127,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {});
 
                         // 終了判定をする
-                        if(isWin(board, koma)){
+                        if(usecase.isWin(gameState.board, koma)){
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -145,15 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
-                          board_color = [ Colors.white, Colors.white, Colors.white,
-                                          Colors.white, Colors.white, Colors.white,
-                                          Colors.white, Colors.white, Colors.white,
-                                        ];
-                          board = [
-                                    [-1,-1,-1],
-                                    [-1,-1,-1],
-                                    [-1,-1,-1],
-                                  ];
+                          // TODO
                           turn = 0;
 
                           // 状態を更新
@@ -165,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
-                          color: board_color[index]
+                          color: gameState.boardcolor[index]
                         ),
                       ),
                     );
@@ -178,15 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             // 盤面を初期化する
-            board_color = [ Colors.white, Colors.white, Colors.white,
-                            Colors.white, Colors.white, Colors.white,
-                            Colors.white, Colors.white, Colors.white,
-                          ];
-            board = [
-                      [-1,-1,-1],
-                      [-1,-1,-1],
-                      [-1,-1,-1],
-                    ];
+            // TODO
             turn = 0;
 
             // 状態を更新
