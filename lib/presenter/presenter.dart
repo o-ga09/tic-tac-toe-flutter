@@ -7,8 +7,14 @@ class GamePresenter implements OutPutPort {
   final GameState state;
   
   GamePresenter(this.state);
+
   @override
-  void display(Board board) {
-    state.setBoard(board);
+  bool input(Koma koma) {
+    return state.setBoard(koma);
+  }
+
+  @override
+  void reset() {
+    state.resetBoard();
   }
 }

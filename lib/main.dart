@@ -1,36 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:tic_tac_toe_fluttrer/driver/driver.dart';
-import 'package:tic_tac_toe_fluttrer/gateway/gateway.dart';
 import 'package:tic_tac_toe_fluttrer/presenter/presenter.dart';
 import 'package:tic_tac_toe_fluttrer/state/state.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/usecase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   // runApp(MyApp());
-  runApp(MaterialApp(
-    title: 'test',
-    home: MyHomePage(),
-  ));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  static var gameState = GameState();
-  static var driver = GameDriver();
-  static var gateway = GameGateway(driver);
-  static var presenter = GamePresenter(gameState);
-  static var usecase = GameUsecase(presenter,gateway);
-
-  int turn = 1;
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+final gameStateProvider = ChangeNotifierProvider((ref) {
+  return GameState();
+});
+
+// ignore: must_be_immutable
+class MyHomePage extends ConsumerWidget {
+  MyHomePage({Key?  key}) : super(key: key);
+
+  int turn = 0;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final board = ref.watch(gameStateProvider);
+    final presenter = GamePresenter(board);
+    final usecase = GameUsecase(presenter);
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -61,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         final koma = usecase.input(turn, index);
 
                         // タップした場所が空白か
-                        if(koma.order == -2) {
+                        if(!koma.putted) {
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -81,14 +90,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                           return;
                         }
-          
 
-
-                        // 盤面を更新
-                        turn = 1 - turn;
-                        
                         // 引き分け判定
-                        if(!usecase.isEmpty(gameState.board)) {
+                        if(!usecase.isEmpty(board.board)) {
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -108,16 +112,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                           usecase.reset();
                           turn = 0;
-
-                          // 状態を更新
-                          setState(() {});
                         }
 
-                        // 状態を更新
-                        setState(() {});
-
                         // 終了判定をする
-                        if(usecase.isWin(gameState.board, koma)){
+                        if(usecase.isWin(board.board, koma)){
                           showDialog(
                             context: context, 
                             builder: (BuildContext context) {
@@ -135,19 +133,16 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           );
-                          usecase.reset();
+                          // usecase.reset();
                           turn = 0;
-
-                          // 状態を更新
-                          setState(() {});
                         }
-
-
+                        // プレイヤー交代
+                        turn = 1 - turn;
                       },
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
-                          color: gameState.boardcolor[index]
+                          color: board.boardcolor[index]
                         ),
                       ),
                     );
@@ -162,9 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
             // 盤面を初期化する
             usecase.reset();
             turn = 0;
-
-            // 状態を更新
-            setState(() {});
           },
           child: const Icon(Icons.refresh),
         ),

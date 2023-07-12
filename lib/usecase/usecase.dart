@@ -1,24 +1,16 @@
-import 'package:tic_tac_toe_fluttrer/usecase/port/InPutPort.dart';
 import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
 import '../domain/entity.dart';
 
 class GameUsecase {
   OutPutPort gameOutPutPort;
-  InPutPort gameInPutPort;
-  GameUsecase(this.gameOutPutPort,this.gameInPutPort);
+  GameUsecase(this.gameOutPutPort);
   
   InputData input(int turn, int index) {
     final inputdata = posConvert(index, turn);
     final koma = Koma(turn, inputdata.x, inputdata.y);
-    final board = gameInPutPort.input(koma);
+    final res = gameOutPutPort.input(koma);
 
-    if(board.board[koma.x][koma.y] != -1) {
-      return InputData(-2, -1, -1);
-    }
-    board.board[koma.x][koma.y] = turn;
-    gameOutPutPort.display(board);
-
-    return InputData(turn, koma.x, koma.y);
+    return InputData(koma.order, koma.x, koma.y, res);
   }
 
   bool isWin(List<List<int>> board,InputData pos) {
@@ -29,8 +21,7 @@ class GameUsecase {
   }
 
   void reset() {
-    var initBoard = gameInPutPort.reset();
-    gameOutPutPort.display(initBoard);
+    gameOutPutPort.reset();
   }
 
   bool checkVertical(List<List<int>> board,InputData pos){
@@ -98,6 +89,7 @@ class InputData {
   final int order;
   final int x;
   final int y;
+  final bool putted;
 
-  InputData(this.order, this.x, this.y);
+  InputData(this.order, this.x, this.y,this.putted);
 }
