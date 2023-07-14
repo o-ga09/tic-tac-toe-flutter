@@ -1,6 +1,4 @@
-import 'package:tic_tac_toe_fluttrer/domain/entity.dart';
-
 abstract class OutPutPort {
-  bool input(Koma koma);
+  bool input(int turn, int x, int y);
   void reset();
 }

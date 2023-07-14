@@ -1,16 +1,16 @@
 import 'package:tic_tac_toe_fluttrer/usecase/port/OutputPort.dart';
 import '../domain/entity.dart';
 
+
 class GameUsecase {
   OutPutPort gameOutPutPort;
   GameUsecase(this.gameOutPutPort);
   
   InputData input(int turn, int index) {
     final inputdata = posConvert(index, turn);
-    final koma = Koma(turn, inputdata.x, inputdata.y);
-    final res = gameOutPutPort.input(koma);
+    final res = gameOutPutPort.input(turn, inputdata.x,inputdata.y);
 
-    return InputData(koma.order, koma.x, koma.y, res);
+    return InputData(turn, inputdata.x, inputdata.y, res);
   }
 
   bool isWin(List<List<int>> board,InputData pos) {
