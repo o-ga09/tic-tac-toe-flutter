@@ -1,5 +1,7 @@
 # tic_tac_toe_fluttrer
 
+Flutter で三目並べを実装する
+
 <img src="./doc/image/readme..png">
 
 <img src="./doc/image/tictactow-flutter.gif">
